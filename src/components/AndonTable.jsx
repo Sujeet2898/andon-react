@@ -24,9 +24,13 @@ const StatusSelect = styled.select`
   padding: 5px;
   color: white;
   background: ${({ value }) =>
-    value === "Completed" ? "green" :
-    value === "In Progress" ? "orange" :
-    value === "Hold" ? "red" : "gray"};
+    value === "Completed"
+      ? "green"
+      : value === "In Progress"
+      ? "orange"
+      : value === "Hold"
+      ? "red"
+      : "gray"};
 `;
 
 const Button = styled.button`
@@ -38,9 +42,20 @@ const Button = styled.button`
 `;
 
 const SmallInput = styled.input`
-  width: 60px;
+  width: 80px;
   padding: 4px;
   font-size: 12px;
+  margin: 2px;
+`;
+
+const ReasonInput = styled.input`
+  width: 80%;
+  padding: 4px;
+  font-size: 11px;
+  margin-top: 4px;
+  background: #020617;
+  color: white;
+  border: 1px solid #334155;
 `;
 
 const processes = [
@@ -54,7 +69,7 @@ const processes = [
   "UT",
   "Spark",
   "XRF",
-  "Packaging"
+  "Packaging",
 ];
 
 // Format duration into hh:mm
@@ -77,10 +92,12 @@ const calcDuration = (startDate, start, endDate, end) => {
 
 // Calculate total heat time across processes
 const calcHeatTotal = (processes) => {
-  const starts = processes.filter(p => p.startDate && p.start)
-    .map(p => new Date(`${p.startDate}T${p.start}`).getTime());
-  const ends = processes.filter(p => p.endDate && p.end)
-    .map(p => new Date(`${p.endDate}T${p.end}`).getTime());
+  const starts = processes
+    .filter((p) => p.startDate && p.start)
+    .map((p) => new Date(`${p.startDate}T${p.start}`).getTime());
+  const ends = processes
+    .filter((p) => p.endDate && p.end)
+    .map((p) => new Date(`${p.endDate}T${p.end}`).getTime());
 
   if (starts.length === 0 || ends.length === 0) return "00:00";
 
@@ -90,22 +107,28 @@ const calcHeatTotal = (processes) => {
 };
 
 export default function AndonTable({ heats, setHeats }) {
-
   const addHeat = () => {
-    setHeats([...heats, {
-      heatNo: "",
-      contractor: "",
-      processes: processes.map(() => ({
-        status: "NA",
-        startDate: "",
-        start: "",
-        endDate: "",
-        end: "",
-        duration: "00:00"
-      })),
-      doQty: [0],
-      heatTime: "00:00"
-    }]);
+    setHeats([
+      ...heats,
+      {
+        heatNo: "",
+        grade: "",
+        size: "",
+        contractor: "",
+        processes: processes.map((name) => ({
+          processName: name,
+          status: "NA",
+          startDate: "",
+          start: "",
+          endDate: "",
+          end: "",
+          duration: "00:00",
+          reason: "",
+        })),
+        doQty: [0],
+        heatTime: "00:00",
+      },
+    ]);
   };
 
   return (
@@ -114,9 +137,10 @@ export default function AndonTable({ heats, setHeats }) {
       <Table>
         <thead>
           <tr>
-            <Th>Heat No</Th>
-            <Th>Contractor</Th>
-            {processes.map(p => <Th key={p}>{p}</Th>)}
+            <Th>Heat Detail</Th>
+            {processes.map((p) => (
+              <Th key={p}>{p}</Th>
+            ))}
             <Th>DO</Th>
             <Th>Total Time</Th>
           </tr>
@@ -129,43 +153,65 @@ export default function AndonTable({ heats, setHeats }) {
 
             return (
               <tr key={hIndex}>
+                {/* Heat Detail Column */}
                 <Td>
-                  <SmallInput
-                    value={heat.heatNo}
-                    onChange={e => {
-                      heat.heatNo = e.target.value;
-                      setHeats([...heats]);
-                    }}
-                  />
+                  <div>
+                    <label>Heat No:</label>
+                    <SmallInput
+                      value={heat.heatNo}
+                      onChange={(e) => {
+                        heat.heatNo = e.target.value;
+                        setHeats([...heats]);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label>Grade:</label>
+                    <SmallInput
+                      value={heat.grade}
+                      onChange={(e) => {
+                        heat.grade = e.target.value;
+                        setHeats([...heats]);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label>Size:</label>
+                    <SmallInput
+                      value={heat.size}
+                      onChange={(e) => {
+                        heat.size = e.target.value;
+                        setHeats([...heats]);
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label>Contractor:</label>
+                    <SmallInput
+                      value={heat.contractor}
+                      onChange={(e) => {
+                        heat.contractor = e.target.value;
+                        setHeats([...heats]);
+                      }}
+                    />
+                  </div>
                 </Td>
 
-                <Td>
-  <select
-    value={heat.contractor}
-    onChange={e => {
-      heat.contractor = e.target.value;
-      setHeats([...heats]);
-    }}
-  >
-    <option value="">Select</option>
-    <option value="OM">OM</option>
-    <option value="Shiv">Shiv</option>
-    <option value="Guru">Guru</option>
-    <option value="Vajra">Vajra</option>
-    <option value="Other">Other</option>
-  </select>
-</Td>
-
-
+                {/* Process Columns */}
                 {heat.processes.map((p, pIndex) => {
-                  const durationHHMM = calcDuration(p.startDate, p.start, p.endDate, p.end);
+                  const durationHHMM = calcDuration(
+                    p.startDate,
+                    p.start,
+                    p.endDate,
+                    p.end
+                  );
                   p.duration = durationHHMM;
 
                   return (
                     <Td key={pIndex}>
                       <StatusSelect
                         value={p.status}
-                        onChange={e => {
+                        onChange={(e) => {
                           p.status = e.target.value;
                           setHeats([...heats]);
                         }}
@@ -181,7 +227,7 @@ export default function AndonTable({ heats, setHeats }) {
                       <input
                         type="date"
                         value={p.startDate}
-                        onChange={e => {
+                        onChange={(e) => {
                           p.startDate = e.target.value;
                           setHeats([...heats]);
                         }}
@@ -189,7 +235,7 @@ export default function AndonTable({ heats, setHeats }) {
                       <input
                         type="time"
                         value={p.start}
-                        onChange={e => {
+                        onChange={(e) => {
                           p.start = e.target.value;
                           setHeats([...heats]);
                         }}
@@ -199,7 +245,7 @@ export default function AndonTable({ heats, setHeats }) {
                       <input
                         type="date"
                         value={p.endDate}
-                        onChange={e => {
+                        onChange={(e) => {
                           p.endDate = e.target.value;
                           setHeats([...heats]);
                         }}
@@ -207,29 +253,44 @@ export default function AndonTable({ heats, setHeats }) {
                       <input
                         type="time"
                         value={p.end}
-                        onChange={e => {
+                        onChange={(e) => {
                           p.end = e.target.value;
                           setHeats([...heats]);
                         }}
                       />
 
                       <div>{durationHHMM}</div>
+
+                      <ReasonInput
+                        type="text"
+                        placeholder="Reason"
+                        value={p.reason}
+                        onChange={(e) => {
+                          p.reason = e.target.value;
+                          setHeats([...heats]);
+                        }}
+                      />
                     </Td>
                   );
                 })}
 
+                {/* DO Column */}
                 <Td>
-                  <Button onClick={() => {
-                    heat.doQty.push(0);
-                    setHeats([...heats]);
-                  }}>+DO</Button>
+                  <Button
+                    onClick={() => {
+                      heat.doQty.push(0);
+                      setHeats([...heats]);
+                    }}
+                  >
+                    +DO
+                  </Button>
 
                   {heat.doQty.map((q, i) => (
                     <SmallInput
                       key={i}
                       type="number"
                       value={q}
-                      onChange={e => {
+                      onChange={(e) => {
                         heat.doQty[i] = Number(e.target.value);
                         setHeats([...heats]);
                       }}
@@ -237,6 +298,7 @@ export default function AndonTable({ heats, setHeats }) {
                   ))}
                 </Td>
 
+                {/* Total Time Column */}
                 <Td>{totalHHMM} hh:mm</Td>
               </tr>
             );
