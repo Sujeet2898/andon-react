@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import Summary from "./Summary"; // adjust path if needed
 
 const statusColor = (status) => {
   switch (status) {
@@ -13,7 +14,6 @@ const statusColor = (status) => {
   }
 };
 
-// palette of attractive row colors
 const heatColors = [
   "linear-gradient(135deg, #1e3a8a, #3b82f6)", // blue
   "linear-gradient(135deg, #0f766e, #14b8a6)", // teal
@@ -77,7 +77,6 @@ const ProcessContent = styled.div`
   height: 100%;
 `;
 
-// styled row with dynamic background
 const HeatRow = styled.tr`
   background: ${({ bg }) => bg};
 `;
@@ -94,61 +93,63 @@ export default function HeatDashboard({ heats }) {
   const processNames = heats[0]?.processes?.map((p) => p.processName) || [];
 
   return (
-    <Table>
-      <thead>
-        <tr>
-          <Th>Heat Info</Th>
-          <Th>Status</Th>
-          {processNames.map((name, i) => (
-            <Th key={i}>{name}</Th>
-          ))}
-        </tr>
-      </thead>
-
-      <tbody>
-        {heats.map((heat, hIndex) => (
-          <HeatRow key={hIndex} bg={heatColors[hIndex % heatColors.length]}>
-            {/* First Column: Heat Info */}
-            <Td>
-              <div>
-                <strong>Heat No:</strong> {heat.heatNo || "-"}
-              </div>
-              <div>
-                <strong>Grade:</strong> {heat.grade || "-"}
-              </div>
-              <div>
-                <strong>Size:</strong> {heat.size || "-"}
-              </div>
-              <div>
-                <strong>Contractor:</strong> {heat.contractor || "-"}
-              </div>
-            </Td>
-
-            {/* Second Column: DO + ToT */}
-            <StatusCell>
-              <StatusContent>
-                <div>
-                  <strong>DO (MT):</strong> {heat.doQty?.join(", ") || "-"}
-                </div>
-                <div>
-                  <strong>ToT (Hrs):</strong> {heat.heatTime || "00:00"}
-                </div>
-              </StatusContent>
-            </StatusCell>
-
-            {/* Process Columns */}
-            {heat.processes.map((p, pIndex) => (
-              <Td key={pIndex}>
-                <ProcessContent>
-                  <StatusCircle status={p.status} />
-                  <div>{p.duration || "00:00"}</div>
-                  <div>{p.reason || "-"}</div>
-                </ProcessContent>
-              </Td>
+    <>
+      <Table>
+        <thead>
+          <tr>
+            <Th>Heat Info</Th>
+            <Th>Status</Th>
+            {processNames.map((name, i) => (
+              <Th key={i}>{name}</Th>
             ))}
-          </HeatRow>
-        ))}
-      </tbody>
-    </Table>
+          </tr>
+        </thead>
+
+        <tbody>
+          {heats.map((heat, hIndex) => (
+            <HeatRow key={hIndex} bg={heatColors[hIndex % heatColors.length]}>
+              <Td>
+                <div>
+                  <strong>Heat No:</strong> {heat.heatNo || "-"}
+                </div>
+                <div>
+                  <strong>Grade:</strong> {heat.grade || "-"}
+                </div>
+                <div>
+                  <strong>Size:</strong> {heat.size || "-"}
+                </div>
+                <div>
+                  <strong>Contractor:</strong> {heat.contractor || "-"}
+                </div>
+              </Td>
+
+              <StatusCell>
+                <StatusContent>
+                  <div>
+                    <strong>DO (MT):</strong> {heat.doQty?.join(", ") || "-"}
+                  </div>
+                  <div>
+                    <strong>ToT (Hrs):</strong> {heat.heatTime || "00:00"}
+                  </div>
+                </StatusContent>
+              </StatusCell>
+
+              {heat.processes.map((p, pIndex) => (
+                <Td key={pIndex}>
+                  <ProcessContent>
+                    <StatusCircle status={p.status} />
+                    <div>{p.duration || "00:00"}</div>
+                    <div>{p.reason || "-"}</div>
+                  </ProcessContent>
+                </Td>
+              ))}
+            </HeatRow>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* Summary section at the end of Heat Tracker */}
+      <Summary heats={heats} />
+    </>
   );
 }

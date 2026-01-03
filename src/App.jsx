@@ -4,7 +4,6 @@ import GlobalStyles from "./styles/GlobalStyles";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
 import AndonTable from "./components/AndonTable";
-import Summary from "./components/Summary";
 import HeatTracker from "./components/HeatTracker";
 import CompletedHeat from "./components/CompletedHeat";
 import Footer from "./components/Footer";
@@ -55,8 +54,6 @@ export default function App() {
               element={<CompletedHeat heats={completedHeats} />}
             />
           </Routes>
-
-          <Summary heats={heats} />
         </ContentWrapper>
 
         <Footer />
