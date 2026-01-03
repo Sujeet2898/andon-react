@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Summary from "./Summary"; // adjust path if needed
+import { HighlightText, useHighlight } from "./HighlightContext";
 
 const statusColor = (status) => {
   switch (status) {
@@ -82,6 +83,8 @@ const HeatRow = styled.tr`
 `;
 
 export default function HeatDashboard({ heats }) {
+  const searchTerm = useHighlight(); // 🔍 get global search term
+
   if (!heats || heats.length === 0) {
     return (
       <div style={{ color: "white", padding: "16px" }}>
@@ -90,7 +93,33 @@ export default function HeatDashboard({ heats }) {
     );
   }
 
-  const processNames = heats[0]?.processes?.map((p) => p.processName) || [];
+  // 🔍 Filter heats: only include rows that match search term
+  const filteredHeats = !searchTerm
+    ? heats
+    : heats.filter((heat) => {
+        const valuesToCheck = [
+          heat.heatNo,
+          heat.grade,
+          heat.size,
+          heat.contractor,
+          heat.heatTime,
+          ...(heat.doQty || []),
+          ...(heat.processes?.map((p) => p.reason) || []),
+        ].map(String);
+        return valuesToCheck.some((val) =>
+          val.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
+
+  if (!filteredHeats.length) {
+    return (
+      <div style={{ color: "white", padding: "16px" }}>No matching heats</div>
+    );
+  }
+
+  // 🔍 Use filteredHeats for header too
+  const processNames =
+    filteredHeats[0]?.processes?.map((p) => p.processName) || [];
 
   return (
     <>
@@ -106,30 +135,39 @@ export default function HeatDashboard({ heats }) {
         </thead>
 
         <tbody>
-          {heats.map((heat, hIndex) => (
+          {/* 🔍 Map over filteredHeats instead of heats */}
+          {filteredHeats.map((heat, hIndex) => (
             <HeatRow key={hIndex} bg={heatColors[hIndex % heatColors.length]}>
               <Td>
                 <div>
-                  <strong>Heat No:</strong> {heat.heatNo || "-"}
+                  <strong>Heat No:</strong>{" "}
+                  <HighlightText>{heat.heatNo || "-"}</HighlightText>
                 </div>
                 <div>
-                  <strong>Grade:</strong> {heat.grade || "-"}
+                  <strong>Grade:</strong>{" "}
+                  <HighlightText>{heat.grade || "-"}</HighlightText>
                 </div>
                 <div>
-                  <strong>Size:</strong> {heat.size || "-"}
+                  <strong>Size:</strong>{" "}
+                  <HighlightText>{heat.size || "-"}</HighlightText>
                 </div>
                 <div>
-                  <strong>Contractor:</strong> {heat.contractor || "-"}
+                  <strong>Contractor:</strong>{" "}
+                  <HighlightText>{heat.contractor || "-"}</HighlightText>
                 </div>
               </Td>
 
               <StatusCell>
                 <StatusContent>
                   <div>
-                    <strong>DO (MT):</strong> {heat.doQty?.join(", ") || "-"}
+                    <strong>DO (MT):</strong>{" "}
+                    <HighlightText>
+                      {heat.doQty?.join(", ") || "-"}
+                    </HighlightText>
                   </div>
                   <div>
-                    <strong>ToT (Hrs):</strong> {heat.heatTime || "00:00"}
+                    <strong>ToT (Hrs):</strong>{" "}
+                    <HighlightText>{heat.heatTime || "00:00"}</HighlightText>
                   </div>
                 </StatusContent>
               </StatusCell>
@@ -138,8 +176,12 @@ export default function HeatDashboard({ heats }) {
                 <Td key={pIndex}>
                   <ProcessContent>
                     <StatusCircle status={p.status} />
-                    <div>{p.duration || "00:00"}</div>
-                    <div>{p.reason || "-"}</div>
+                    <div>
+                      <HighlightText>{p.duration || "00:00"}</HighlightText>
+                    </div>
+                    <div>
+                      <HighlightText>{p.reason || "-"}</HighlightText>
+                    </div>
                   </ProcessContent>
                 </Td>
               ))}
@@ -149,7 +191,7 @@ export default function HeatDashboard({ heats }) {
       </Table>
 
       {/* Summary section at the end of Heat Tracker */}
-      <Summary heats={heats} />
+      <Summary heats={filteredHeats} />
     </>
   );
 }

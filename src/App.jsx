@@ -1,3 +1,4 @@
+// App.jsx
 import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import GlobalStyles from "./styles/GlobalStyles";
@@ -7,8 +8,8 @@ import AndonTable from "./components/AndonTable";
 import HeatTracker from "./components/HeatTracker";
 import CompletedHeat from "./components/CompletedHeat";
 import Footer from "./components/Footer";
-
 import styled from "styled-components";
+import { HighlightProvider } from "./components/HighlightContext"; // 🔍 Import provider
 
 const AppWrapper = styled.div`
   display: flex;
@@ -23,41 +24,46 @@ const ContentWrapper = styled.main`
 export default function App() {
   const [heats, setHeats] = useState([]);
   const [completedHeats, setCompletedHeats] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 Global search term
 
   return (
     <BrowserRouter>
-      <GlobalStyles />
-      <AppWrapper>
-        <Header />
+      {/* 🔍 Wrap everything in HighlightProvider */}
+      <HighlightProvider searchTerm={searchTerm}>
+        <GlobalStyles />
+        <AppWrapper>
+          <Header />
 
-        <ContentWrapper>
-          <Navbar />
+          <ContentWrapper>
+            {/* Navbar updates searchTerm via onSearch */}
+            <Navbar onSearch={setSearchTerm} />
 
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <AndonTable
-                  heats={heats}
-                  setHeats={setHeats}
-                  completedHeats={completedHeats}
-                  setCompletedHeats={setCompletedHeats}
-                />
-              }
-            />
-            <Route
-              path="/heattracker"
-              element={<HeatTracker heats={heats} />}
-            />
-            <Route
-              path="/completedheat"
-              element={<CompletedHeat heats={completedHeats} />}
-            />
-          </Routes>
-        </ContentWrapper>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <AndonTable
+                    heats={heats}
+                    setHeats={setHeats}
+                    completedHeats={completedHeats}
+                    setCompletedHeats={setCompletedHeats}
+                  />
+                }
+              />
+              <Route
+                path="/heattracker"
+                element={<HeatTracker heats={heats} />}
+              />
+              <Route
+                path="/completedheat"
+                element={<CompletedHeat heats={completedHeats} />}
+              />
+            </Routes>
+          </ContentWrapper>
 
-        <Footer />
-      </AppWrapper>
+          <Footer />
+        </AppWrapper>
+      </HighlightProvider>
     </BrowserRouter>
   );
 }
