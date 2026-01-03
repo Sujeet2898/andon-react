@@ -1,4 +1,3 @@
-import { useState } from "react";
 import styled from "styled-components";
 
 const Table = styled.table`
@@ -39,6 +38,10 @@ const Button = styled.button`
   border: none;
   cursor: pointer;
   color: white;
+
+  &:hover {
+    background: #16a34a;
+  }
 `;
 
 const SmallInput = styled.input`
@@ -72,7 +75,6 @@ const processes = [
   "Packaging",
 ];
 
-// Format duration into hh:mm
 const formatHHMM = (diffMs) => {
   if (diffMs <= 0) return "00:00";
   const totalMinutes = Math.floor(diffMs / 60000);
@@ -82,7 +84,6 @@ const formatHHMM = (diffMs) => {
   return `${pad(hours)}:${pad(minutes)}`;
 };
 
-// Calculate duration for one process
 const calcDuration = (startDate, start, endDate, end) => {
   if (!startDate || !start || !endDate || !end) return "00:00";
   const startDT = new Date(`${startDate}T${start}`);
@@ -90,7 +91,6 @@ const calcDuration = (startDate, start, endDate, end) => {
   return formatHHMM(endDT - startDT);
 };
 
-// Calculate total heat time across processes
 const calcHeatTotal = (processes) => {
   const starts = processes
     .filter((p) => p.startDate && p.start)
@@ -106,7 +106,12 @@ const calcHeatTotal = (processes) => {
   return formatHHMM(maxEnd - minStart);
 };
 
-export default function AndonTable({ heats, setHeats }) {
+export default function AndonTable({
+  heats,
+  setHeats,
+  completedHeats,
+  setCompletedHeats,
+}) {
   const addHeat = () => {
     setHeats([
       ...heats,
@@ -131,6 +136,12 @@ export default function AndonTable({ heats, setHeats }) {
     ]);
   };
 
+  const completeHeat = (heatIndex) => {
+    const selectedHeat = heats[heatIndex];
+    setCompletedHeats([...completedHeats, selectedHeat]);
+    setHeats(heats.filter((_, i) => i !== heatIndex));
+  };
+
   return (
     <>
       <Button onClick={addHeat}>➕ Add Heat</Button>
@@ -143,6 +154,7 @@ export default function AndonTable({ heats, setHeats }) {
             ))}
             <Th>DO</Th>
             <Th>Total Time</Th>
+            <Th>Action</Th>
           </tr>
         </thead>
 
@@ -153,7 +165,7 @@ export default function AndonTable({ heats, setHeats }) {
 
             return (
               <tr key={hIndex}>
-                {/* Heat Detail Column */}
+                {/* Heat Detail */}
                 <Td>
                   <div>
                     <label>Heat No:</label>
@@ -222,8 +234,6 @@ export default function AndonTable({ heats, setHeats }) {
                         <option>NA</option>
                       </StatusSelect>
                       <br />
-
-                      {/* Start Date + Time */}
                       <input
                         type="date"
                         value={p.startDate}
@@ -240,8 +250,6 @@ export default function AndonTable({ heats, setHeats }) {
                           setHeats([...heats]);
                         }}
                       />
-
-                      {/* End Date + Time */}
                       <input
                         type="date"
                         value={p.endDate}
@@ -258,9 +266,7 @@ export default function AndonTable({ heats, setHeats }) {
                           setHeats([...heats]);
                         }}
                       />
-
                       <div>{durationHHMM}</div>
-
                       <ReasonInput
                         type="text"
                         placeholder="Reason"
@@ -284,7 +290,6 @@ export default function AndonTable({ heats, setHeats }) {
                   >
                     +DO
                   </Button>
-
                   {heat.doQty.map((q, i) => (
                     <SmallInput
                       key={i}
@@ -300,6 +305,13 @@ export default function AndonTable({ heats, setHeats }) {
 
                 {/* Total Time Column */}
                 <Td>{totalHHMM} hh:mm</Td>
+
+                {/* Action Column */}
+                <Td>
+                  <Button onClick={() => completeHeat(hIndex)}>
+                    Completed
+                  </Button>
+                </Td>
               </tr>
             );
           })}

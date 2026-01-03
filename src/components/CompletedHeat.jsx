@@ -82,7 +82,7 @@ const HeatRow = styled.tr`
   background: ${({ bg }) => bg};
 `;
 
-export default function HeatDashboard({ heats }) {
+export default function HeatDashboard2({ heats }) {
   if (!heats || heats.length === 0) {
     return (
       <div style={{ color: "white", padding: "16px" }}>

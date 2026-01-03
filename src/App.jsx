@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import AndonTable from "./components/AndonTable";
 import Summary from "./components/Summary";
 import HeatTracker from "./components/HeatTracker";
+import CompletedHeat from "./components/CompletedHeat";
 import Footer from "./components/Footer";
 
 import styled from "styled-components";
@@ -13,15 +14,16 @@ import styled from "styled-components";
 const AppWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* full viewport height */
+  min-height: 100vh;
 `;
 
 const ContentWrapper = styled.main`
-  flex: 1; /* pushes footer to bottom if content is short */
+  flex: 1;
 `;
 
 export default function App() {
   const [heats, setHeats] = useState([]);
+  const [completedHeats, setCompletedHeats] = useState([]);
 
   return (
     <BrowserRouter>
@@ -30,30 +32,33 @@ export default function App() {
         <Header />
 
         <ContentWrapper>
-          {/* HeatTracker always visible inside Navbar */}
-          <Navbar>
-            <HeatTracker heats={heats} />
-          </Navbar>
+          <Navbar />
 
           <Routes>
-            {/* Home route renders AndonTable */}
             <Route
               path="/"
-              element={<AndonTable heats={heats} setHeats={setHeats} />}
+              element={
+                <AndonTable
+                  heats={heats}
+                  setHeats={setHeats}
+                  completedHeats={completedHeats}
+                  setCompletedHeats={setCompletedHeats}
+                />
+              }
             />
-
-            {/* HeatTracker route renders HeatTracker as a full page */}
             <Route
               path="/heattracker"
               element={<HeatTracker heats={heats} />}
             />
+            <Route
+              path="/completedheat"
+              element={<CompletedHeat heats={completedHeats} />}
+            />
           </Routes>
 
-          {/* Summary always visible */}
           <Summary heats={heats} />
         </ContentWrapper>
 
-        {/* Footer always at bottom */}
         <Footer />
       </AppWrapper>
     </BrowserRouter>

@@ -24,6 +24,7 @@ export default function Navbar() {
     <Nav>
       <NavItem to="/">Home</NavItem>
       <NavItem to="/heattracker">Heat Tracker</NavItem>
+      <NavItem to="/completedheat">Completed Heat</NavItem>
     </Nav>
   );
 }
